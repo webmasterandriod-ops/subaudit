@@ -1,0 +1,6 @@
+{
+  "name": "SubAudit — Tactile Ledger Subscription Auditor",
+  "description": "Local-only mobile-first subscription auditor for tracking recurring monthly and annual spend, ranking cancel candidates by usage, and monitoring upcoming renewals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
