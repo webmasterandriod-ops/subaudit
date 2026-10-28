@@ -48,28 +48,25 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
             <p className="text-xs font-medium text-[#94A3B8]">
               Total Categorized Monthly Spend
             </p>
-            <div className="mt-2 flex items-baseline gap-1.5">
+            <div className="mt-2">
               <span
                 data-testid="categories-monthly-total"
-                className="font-mono-num text-4xl font-bold text-[#10F596]"
+                className="money-display text-4xl font-bold text-[#10F596]"
               >
-                {formatMoney(monthlyTotal, currency)}
-              </span>
-              <span className="font-mono-num text-base text-[#94A3B8]">
-                /mo
+                {`${formatMoney(monthlyTotal, currency)}/mo`}
               </span>
             </div>
           </div>
 
           <div className="text-left sm:text-right">
             <p className="text-xs text-[#94A3B8]">Annualized Total</p>
-            <p className="font-mono-num text-lg font-bold text-[#10F596] mt-1">
-              {formatMoney(yearlyTotal, currency)}/yr
+            <p className="money-display text-lg font-bold text-[#10F596] mt-1">
+              {`${formatMoney(yearlyTotal, currency)}/yr`}
             </p>
           </div>
         </div>
 
-        {/* Stacked Proportional Distribution Bar */}
+        {/* Stacked Proportional Distribution Bar using slate tonal steps */}
         {!isEmpty && (
           <div className="mt-5 space-y-2">
             <div
@@ -79,25 +76,24 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
               {categoryStats
                 .filter((c) => c.sharePercent > 0)
                 .map((cat, idx) => {
-                  const opacities = [
-                    'bg-[#10F596]',
-                    'bg-[#10F596]/75',
-                    'bg-[#10F596]/55',
-                    'bg-[#FFD06A]/80',
-                    'bg-[#94A3B8]/60',
+                  const slateTones = [
+                    'bg-[#CBD5E1]',
+                    'bg-[#94A3B8]',
+                    'bg-[#64748B]',
+                    'bg-[#475569]',
+                    'bg-[#334155]',
                   ];
                   return (
                     <div
                       key={cat.id}
                       style={{ width: `${Math.max(cat.sharePercent, 3)}%` }}
-                      className={`h-full first:rounded-l-full last:rounded-r-full ${opacities[idx % opacities.length]}`}
+                      className={`h-full first:rounded-l-full last:rounded-r-full ${slateTones[idx % slateTones.length]}`}
                     />
                   );
                 })}
             </div>
             <div className="flex items-center justify-between text-xs text-[#94A3B8]">
-              <span>5 ledger categories</span>
-              <span className="font-mono-num">100.0% allocated</span>
+              <span>5 categories</span>
             </div>
           </div>
         )}
@@ -126,7 +122,7 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
               onClick={onAddClick}
               className="min-h-[48px] px-5 rounded-[16px] bg-[#1A1F2C] hover:bg-[#242B3D] border border-[#2E364B] text-white text-sm font-medium inline-flex items-center gap-2 transition-colors whitespace-nowrap shrink-0"
             >
-              <Plus className="w-4 h-4 text-[#10F596]" />
+              <Plus className="w-4 h-4 text-white" />
               <span>Add Subscription</span>
             </button>
           </div>
@@ -143,7 +139,7 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('all')}
-                  className="text-xs text-[#10F596] hover:underline whitespace-nowrap"
+                  className="text-xs text-[#94A3B8] hover:text-white hover:underline whitespace-nowrap"
                 >
                   Show all categories
                 </button>
@@ -176,7 +172,7 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
                         </div>
 
                         <div className="flex items-baseline gap-2.5 shrink-0">
-                          <span className="font-mono-num text-base font-bold text-[#10F596]">
+                          <span className="money-display text-base font-bold text-[#10F596]">
                             {formatMoney(stat.monthlyTotal, currency)}
                           </span>
                           <span className="font-mono-num text-xs text-[#94A3B8] w-14 text-right">
@@ -185,16 +181,16 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
                         </div>
                       </div>
 
-                      {/* Share Progress Bar */}
+                      {/* Share Progress Bar in Slate */}
                       <div className="w-full h-1.5 bg-[#090A0F] rounded-full overflow-hidden">
                         <div
                           style={{ width: `${stat.sharePercent}%` }}
-                          className="h-full bg-[#10F596] rounded-full transition-all"
+                          className="h-full bg-[#94A3B8] rounded-full transition-all"
                         />
                       </div>
                     </button>
 
-                    {/* Drilldown items if selected or shown inline */}
+                    {/* Drilldown items if selected */}
                     {isSelected && stat.items.length > 0 && (
                       <div className="bg-[#090A0F]/70 border-t border-[#1E2433] divide-y divide-[#1E2433]/60 px-3 py-1">
                         {stat.items.map((sub) => {
@@ -210,7 +206,7 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
                               className="w-full min-h-[54px] px-3 py-2.5 text-left hover:bg-[#1A1F2C]/60 rounded-xl transition-colors flex items-center justify-between gap-3 group"
                             >
                               <div className="min-w-0">
-                                <p className="text-sm font-medium text-white truncate group-hover:text-[#10F596]">
+                                <p className="text-sm font-medium text-white truncate">
                                   {sub.name}
                                 </p>
                                 <p className="text-xs text-[#94A3B8]">
@@ -219,8 +215,8 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({
                                 </p>
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
-                                <span className="font-mono-num text-sm font-semibold text-[#10F596]">
-                                  {formatMoney(monthly, currency)}/mo
+                                <span className="money-display text-sm font-semibold text-[#10F596]">
+                                  {`${formatMoney(monthly, currency)}/mo`}
                                 </span>
                                 <ChevronRight className="w-4 h-4 text-[#64748B]" />
                               </div>

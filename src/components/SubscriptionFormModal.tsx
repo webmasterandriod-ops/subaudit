@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ArrowLeft,
   Calendar,
   Check,
   AlertTriangle,
@@ -37,11 +36,11 @@ interface SubscriptionFormModalProps {
   onClose: () => void;
 }
 
-const USAGE_OPTIONS: { id: UsageRating; label: string; hint: string }[] = [
-  { id: 'daily', label: 'Daily', hint: 'Essential habit' },
-  { id: 'weekly', label: 'Weekly', hint: 'Regular value' },
-  { id: 'rarely', label: 'Rarely', hint: 'Audit candidate' },
-  { id: 'never', label: 'Never', hint: 'Pure waste' },
+const USAGE_OPTIONS: { id: UsageRating; label: string }[] = [
+  { id: 'daily', label: 'Daily' },
+  { id: 'weekly', label: 'Weekly' },
+  { id: 'rarely', label: 'Rarely' },
+  { id: 'never', label: 'Never' },
 ];
 
 export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
@@ -130,23 +129,18 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-0 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-0 sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="sub-modal-title"
     >
-      <div className="w-full max-w-xl bg-[#12151E] border-t sm:border border-[#222838] rounded-t-[20px] sm:rounded-[20px] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2433] bg-[#090A0F]/60 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="min-h-[48px] min-w-[48px] -ml-2 px-3 rounded-xl flex items-center gap-2 text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-[#1A1F2C] transition-colors whitespace-nowrap shrink-0"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
-          </button>
-
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="w-full max-w-xl bg-[#12151E] border-t sm:border border-[#222838] rounded-t-[20px] sm:rounded-[20px] shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]"
+      >
+        {/* Sheet Header with only one dismiss control (the X) */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1E2433] bg-[#090A0F]/60 shrink-0">
           <h2
             id="sub-modal-title"
             className="font-display text-base font-semibold text-white truncate"
@@ -164,16 +158,12 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
           </button>
         </div>
 
-        {/* Scrollable Form Body */}
-        <form
-          onSubmit={handleSubmit}
-          noValidate
-          className="p-5 sm:p-6 space-y-6 overflow-y-auto flex-1"
-        >
-          {/* Detail Summary Header (shown in Edit mode or live preview in Add mode) */}
+        {/* Inner Scrolling Body */}
+        <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+          {/* Detail Summary Header */}
           <div className="bg-[#1A1F2C] border border-[#262D40] rounded-[18px] p-4 sm:p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-xs text-[#94A3B8]">
                   {mode === 'edit' ? 'Active Ledger Entry' : 'Live Cost Preview'}
                   <span aria-hidden="true"> · </span>
@@ -189,17 +179,16 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                       : `Renews ${formatRenewalCountdown(renewalDate)} (${formatDisplayDate(renewalDate)})`}
                   </span>
                 </p>
-                <h3 className="font-display text-lg font-bold text-white mt-1 truncate max-w-xs sm:max-w-sm">
+                <h3 className="font-display text-lg font-bold text-white mt-1 truncate">
                   {name.trim() || 'Untitled Subscription'}
                 </h3>
               </div>
-              <div className="text-right">
-                <div className="font-mono-num text-2xl font-bold text-[#10F596]">
-                  {formatMoney(monthlyEq, currency)}
-                  <span className="text-xs font-normal text-[#94A3B8]">/mo</span>
+              <div className="text-right shrink-0">
+                <div className="money-display text-2xl font-bold text-[#10F596]">
+                  {`${formatMoney(monthlyEq, currency)}/mo`}
                 </div>
-                <div className="font-mono-num text-xs text-[#10F596]/85 mt-0.5">
-                  {formatMoney(annualEq, currency)}/yr
+                <div className="money-display text-xs text-[#10F596]/85 mt-0.5">
+                  {`${formatMoney(annualEq, currency)}/yr`}
                 </div>
               </div>
             </div>
@@ -210,8 +199,8 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                 {USAGE_LABELS[usage]} usage
               </span>
               {(usage === 'rarely' || usage === 'never') && monthlyEq > 0 && (
-                <span className="font-mono-num text-[#10F596]">
-                  Save {formatMoney(monthlyEq, currency, true)}/mo if cancelled
+                <span className="money-display text-[#10F596]">
+                  {`Save ${formatMoney(monthlyEq, currency, true)}/mo`}
                 </span>
               )}
             </div>
@@ -238,7 +227,7 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
               className={`w-full min-h-[52px] px-4 rounded-[16px] bg-[#090A0F] border text-white placeholder-[#64748B] text-base focus:outline-none transition-colors ${
                 touched.name && validation.errors.name
                   ? 'border-rose-500/80 focus:border-rose-400'
-                  : 'border-[#252B3B] focus:border-[#10F596]'
+                  : 'border-[#252B3B] focus:border-[#94A3B8]'
               }`}
             />
             {touched.name && validation.errors.name && (
@@ -282,7 +271,7 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                   className={`w-full min-h-[52px] pl-10 pr-4 rounded-[16px] bg-[#090A0F] border font-mono-num text-white placeholder-[#64748B] text-base focus:outline-none transition-colors ${
                     touched.cost && validation.errors.cost
                       ? 'border-rose-500/80 focus:border-rose-400'
-                      : 'border-[#252B3B] focus:border-[#10F596]'
+                      : 'border-[#252B3B] focus:border-[#94A3B8]'
                   }`}
                 />
               </div>
@@ -311,7 +300,7 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                   onClick={() => setCycle('monthly')}
                   className={`min-h-[40px] rounded-[12px] text-sm font-medium transition-colors whitespace-nowrap shrink-0 ${
                     cycle === 'monthly'
-                      ? 'bg-[#1A1F2C] text-white border border-[#2E364B]'
+                      ? 'bg-[#1A1F2C] text-white border border-[#3B445E]'
                       : 'text-[#94A3B8] hover:text-white'
                   }`}
                 >
@@ -322,7 +311,7 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                   onClick={() => setCycle('annual')}
                   className={`min-h-[40px] rounded-[12px] text-sm font-medium transition-colors whitespace-nowrap shrink-0 ${
                     cycle === 'annual'
-                      ? 'bg-[#1A1F2C] text-white border border-[#2E364B]'
+                      ? 'bg-[#1A1F2C] text-white border border-[#3B445E]'
                       : 'text-[#94A3B8] hover:text-white'
                   }`}
                 >
@@ -367,12 +356,12 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                 className={`w-full min-h-[52px] px-4 rounded-[16px] bg-[#090A0F] border font-mono-num text-white text-base focus:outline-none transition-colors ${
                   touched.renewalDate && validation.errors.renewalDate
                     ? 'border-rose-500/80 focus:border-rose-400'
-                    : 'border-[#252B3B] focus:border-[#10F596]'
+                    : 'border-[#252B3B] focus:border-[#94A3B8]'
                 }`}
               />
             </div>
 
-            {/* Quick Date Presets for tactile speed */}
+            {/* Quick Date Presets */}
             <div className="flex flex-wrap items-center gap-2 mt-2.5">
               <span className="text-xs text-[#94A3B8] flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" /> Quick set:
@@ -424,7 +413,7 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                     onClick={() => setCategory(cat.id)}
                     className={`min-h-[48px] px-3 py-2 rounded-[16px] border text-sm font-medium transition-colors flex items-center justify-center whitespace-nowrap shrink-0 ${
                       active
-                        ? 'bg-[#1A1F2C] border-[#10F596] text-white'
+                        ? 'bg-[#1A1F2C] border-[#94A3B8] text-white'
                         : 'bg-[#090A0F] border-[#252B3B] text-[#94A3B8] hover:text-white hover:border-[#333B52]'
                     }`}
                   >
@@ -435,20 +424,15 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
             </div>
           </div>
 
-          {/* Field 6: Usage Rating Selector */}
+          {/* Field 6: Usage Rating Selector (Compact 2x2 grid with one-word labels) */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="block text-sm font-medium text-[#F8FAFC]">
-                Usage Rating
-              </span>
-              <span className="text-xs text-[#94A3B8]">
-                Drives cancel candidate ranking
-              </span>
-            </div>
+            <span className="block text-sm font-medium text-[#F8FAFC] mb-2">
+              Usage Rating
+            </span>
             <div
               role="group"
               aria-label="Usage rating"
-              className="grid grid-cols-2 sm:grid-cols-4 gap-2"
+              className="grid grid-cols-2 gap-2.5"
             >
               {USAGE_OPTIONS.map((opt) => {
                 const active = usage === opt.id;
@@ -458,20 +442,15 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                     key={opt.id}
                     type="button"
                     onClick={() => setUsage(opt.id)}
-                    className={`min-h-[54px] px-3 py-2 rounded-[16px] border text-left transition-colors flex flex-col justify-center ${
+                    className={`min-h-[48px] px-4 py-2 rounded-[16px] border text-sm font-semibold transition-colors flex items-center justify-center whitespace-nowrap shrink-0 ${
                       active
                         ? isLowUsage
                           ? 'bg-[#1A1F2C] border-[#FFD06A] text-white'
-                          : 'bg-[#1A1F2C] border-[#10F596] text-white'
+                          : 'bg-[#1A1F2C] border-[#94A3B8] text-white'
                         : 'bg-[#090A0F] border-[#252B3B] text-[#94A3B8] hover:text-white hover:border-[#333B52]'
                     }`}
                   >
-                    <span className="text-sm font-semibold whitespace-nowrap">
-                      {opt.label}
-                    </span>
-                    <span className="text-[11px] text-[#94A3B8] truncate">
-                      {opt.hint}
-                    </span>
+                    {opt.label}
                   </button>
                 );
               })}
@@ -495,78 +474,82 @@ export const SubscriptionFormModal: React.FC<SubscriptionFormModalProps> = ({
                 )}
               </div>
             )}
+        </div>
 
-          {/* Primary Save CTA + Delete Confirmation (in Edit mode) */}
-          <div className="pt-2 space-y-3">
-            <button
-              type="submit"
-              disabled={!validation.valid}
-              className={`w-full min-h-[54px] px-5 rounded-[16px] font-display font-semibold text-base flex items-center justify-center gap-2 transition-all whitespace-nowrap shrink-0 ${
-                validation.valid
-                  ? 'bg-[#10F596] text-[#090A0F] hover:brightness-105 active:scale-[0.99] cursor-pointer'
-                  : 'bg-[#1A1F2C] text-[#64748B] border border-[#252B3B] cursor-not-allowed'
-              }`}
-            >
-              <Check className="w-5 h-5" />
-              <span>
-                {mode === 'add' ? 'Save Subscription' : 'Save Changes'}
-              </span>
-            </button>
+        {/* Sticky Docked Footer for Save & Delete */}
+        <div className="shrink-0 p-4 sm:px-6 border-t border-[#1E2433] bg-[#090A0F]/95 space-y-2.5">
+          {!confirmingDelete ? (
+            <div className="flex items-center gap-2.5">
+              {mode === 'edit' && initialSubscription && onDelete && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmingDelete(true)}
+                  className="min-h-[50px] px-4 rounded-[16px] bg-[#12151E] hover:bg-rose-950/30 border border-[#252B3B] hover:border-rose-500/50 text-rose-400 text-sm font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap shrink-0"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete</span>
+                </button>
+              )}
 
-            {mode === 'edit' && initialSubscription && onDelete && (
-              <div className="pt-2 border-t border-[#1E2433]">
-                {!confirmingDelete ? (
+              <button
+                type="submit"
+                disabled={!validation.valid}
+                className={`flex-1 min-h-[50px] px-5 rounded-[16px] font-display font-semibold text-base flex items-center justify-center gap-2 transition-all whitespace-nowrap shrink-0 ${
+                  validation.valid
+                    ? 'bg-[#1A1F2C] text-white border border-[#3B4661] hover:bg-[#232A3B] active:scale-[0.99] cursor-pointer'
+                    : 'bg-[#12151E] text-[#64748B] border border-[#1E2433] cursor-not-allowed'
+                }`}
+              >
+                <Check className="w-5 h-5" />
+                <span>
+                  {mode === 'add' ? 'Save Subscription' : 'Save Changes'}
+                </span>
+              </button>
+            </div>
+          ) : (
+            mode === 'edit' &&
+            initialSubscription &&
+            onDelete && (
+              <div
+                role="alertdialog"
+                aria-label="Confirm deletion"
+                className="p-3.5 rounded-[16px] bg-[#12151E] border border-rose-500/50 space-y-2.5"
+              >
+                <p className="text-sm text-white font-medium">
+                  Delete &ldquo;{initialSubscription.name}&rdquo;?
+                </p>
+                <p className="text-xs text-[#94A3B8]">
+                  This removes{' '}
+                  <span className="money-display text-[#10F596]">
+                    {`${formatMoney(monthlyEq, currency)}/mo`}
+                  </span>{' '}
+                  (
+                  <span className="money-display text-[#10F596]">
+                    {`${formatMoney(annualEq, currency)}/yr`}
+                  </span>
+                  ) from your local ledger immediately.
+                </p>
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     type="button"
-                    onClick={() => setConfirmingDelete(true)}
-                    className="w-full min-h-[50px] px-4 rounded-[16px] bg-[#090A0F] hover:bg-rose-950/30 border border-[#252B3B] hover:border-rose-500/50 text-rose-400 text-sm font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap shrink-0"
+                    onClick={() => setConfirmingDelete(false)}
+                    className="min-h-[48px] px-3 rounded-[14px] bg-[#1A1F2C] text-white text-sm font-medium hover:bg-[#232A3B] transition-colors whitespace-nowrap shrink-0"
                   >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete Subscription</span>
+                    Keep It
                   </button>
-                ) : (
-                  <div
-                    role="alertdialog"
-                    aria-label="Confirm deletion"
-                    className="p-4 rounded-[16px] bg-[#090A0F] border border-rose-500/50 space-y-3"
+                  <button
+                    type="button"
+                    onClick={() => onDelete(initialSubscription.id)}
+                    className="min-h-[48px] px-3 rounded-[14px] bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
                   >
-                    <p className="text-sm text-white font-medium">
-                      Delete &ldquo;{initialSubscription.name}&rdquo;?
-                    </p>
-                    <p className="text-xs text-[#94A3B8]">
-                      This removes{' '}
-                      <span className="font-mono-num text-[#10F596]">
-                        {formatMoney(monthlyEq, currency)}/mo
-                      </span>{' '}
-                      (
-                      <span className="font-mono-num text-[#10F596]">
-                        {formatMoney(annualEq, currency)}/yr
-                      </span>
-                      ) from your local ledger immediately.
-                    </p>
-                    <div className="grid grid-cols-2 gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setConfirmingDelete(false)}
-                        className="min-h-[48px] px-3 rounded-[14px] bg-[#1A1F2C] text-white text-sm font-medium hover:bg-[#232A3B] transition-colors whitespace-nowrap shrink-0"
-                      >
-                        Keep It
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onDelete(initialSubscription.id)}
-                        className="min-h-[48px] px-3 rounded-[14px] bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold transition-colors whitespace-nowrap shrink-0"
-                      >
-                        Confirm Delete
-                      </button>
-                    </div>
-                  </div>
-                )}
+                    Confirm Delete
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
-        </form>
-      </div>
+            )
+          )}
+        </div>
+      </form>
     </div>
   );
 };

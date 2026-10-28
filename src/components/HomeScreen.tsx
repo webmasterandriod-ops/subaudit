@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Plus,
   ChevronRight,
-  CalendarClock,
   ArrowUpRight,
   RotateCcw,
 } from 'lucide-react';
@@ -14,12 +13,9 @@ import {
 } from '../types';
 import {
   CATEGORY_LABELS,
-  USAGE_LABELS,
   calculateLedgerTotals,
-  formatDisplayDate,
   formatMoney,
   formatRenewalCountdown,
-  getAnnualEquivalent,
   getAuditMetrics,
   getDaysUntilRenewal,
   getMonthlyEquivalent,
@@ -67,15 +63,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <p className="text-xs font-medium text-[#94A3B8]">
                 Monthly Recurring Total
               </p>
-              <div className="mt-2 flex items-baseline gap-1.5">
+              <div className="mt-2">
                 <span
                   data-testid="hero-monthly-total"
-                  className="font-mono-num text-4xl sm:text-5xl font-bold tracking-tight text-[#10F596]"
+                  className="money-display text-4xl sm:text-5xl font-bold text-[#10F596]"
                 >
-                  {formatMoney(monthlyTotal, currency)}
-                </span>
-                <span className="font-mono-num text-base text-[#94A3B8]">
-                  /mo
+                  {`${formatMoney(monthlyTotal, currency)}/mo`}
                 </span>
               </div>
             </div>
@@ -88,9 +81,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <span>Yearly commitment:</span>
               <span
                 data-testid="hero-yearly-total"
-                className="font-mono-num font-semibold text-[#10F596]"
+                className="money-display font-semibold text-[#10F596]"
               >
-                {formatMoney(yearlyTotal, currency)}/yr
+                {`${formatMoney(yearlyTotal, currency)}/yr`}
               </span>
             </div>
 
@@ -110,18 +103,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 </>
               )}
             </div>
-          </div>
-
-          {/* Primary Action Button: + Record Subscription */}
-          <div className="mt-5">
-            <button
-              type="button"
-              onClick={onAddClick}
-              className="w-full min-h-[54px] px-5 rounded-[16px] bg-[#10F596] text-[#090A0F] font-display font-semibold text-base flex items-center justify-center gap-2 hover:brightness-105 active:scale-[0.99] transition-all cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <Plus className="w-5 h-5 stroke-[2.5]" />
-              <span>+ Record Subscription</span>
-            </button>
           </div>
         </div>
 
@@ -154,7 +135,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               onClick={onAddClick}
               className="w-full sm:w-auto min-h-[48px] px-5 rounded-[16px] bg-[#1A1F2C] hover:bg-[#232A3B] border border-[#2E364B] text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap shrink-0"
             >
-              <Plus className="w-4 h-4 text-[#10F596]" />
+              <Plus className="w-4 h-4 text-white" />
               <span>Add First Subscription</span>
             </button>
             <button
@@ -169,7 +150,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </section>
       ) : (
         <>
-          {/* Recoverable Savings Callout Banner (if Never/Rarely used subscriptions exist) */}
+          {/* Recoverable Savings Callout Banner */}
           {wasteCandidates.length > 0 && (
             <div className="bg-[#12151E] border border-[#1E2433] rounded-[18px] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -179,11 +160,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 </p>
                 <p className="text-sm text-[#F8FAFC] mt-1">
                   Potential monthly savings:{' '}
-                  <span className="font-mono-num font-bold text-[#10F596]">
-                    {formatMoney(recoverableMonthly, currency, true)}/mo
+                  <span className="money-display font-bold text-[#10F596]">
+                    {`${formatMoney(recoverableMonthly, currency, true)}/mo`}
                   </span>{' '}
                   <span className="text-[#94A3B8]">
-                    ({formatMoney(recoverableYearly, currency, true)}/yr)
+                    ({`${formatMoney(recoverableYearly, currency, true)}/yr`})
                   </span>
                 </p>
               </div>
@@ -193,12 +174,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 className="min-h-[48px] px-4 rounded-[14px] bg-[#1A1F2C] hover:bg-[#242B3D] border border-[#2B3348] text-sm font-medium text-white flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
               >
                 <span>Review Audit</span>
-                <ArrowUpRight className="w-4 h-4 text-[#10F596]" />
+                <ArrowUpRight className="w-4 h-4 text-[#94A3B8]" />
               </button>
             </div>
           )}
 
-          {/* Next Renewals & Active Ledger List */}
+          {/* Next Renewals List (Strict 2-line rows) */}
           <section aria-label="Next renewals list" className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <div>
@@ -222,30 +203,29 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <div className="bg-[#12151E] border border-[#1E2433] rounded-[20px] divide-y divide-[#1E2433] overflow-hidden">
               {sortedAll.map((sub) => {
                 const monthly = getMonthlyEquivalent(sub.cost, sub.cycle);
-                const yearly = getAnnualEquivalent(sub.cost, sub.cycle);
                 const days = getDaysUntilRenewal(sub.renewalDate);
                 const isWithinReminder = days >= 0 && days <= reminderDays;
-                const isWaste =
-                  sub.usage === 'never' || sub.usage === 'rarely';
 
                 return (
                   <button
                     key={sub.id}
                     type="button"
                     onClick={() => onSelectSubscription(sub)}
-                    className="w-full min-h-[68px] p-4 sm:px-5 text-left hover:bg-[#1A1F2C]/80 active:bg-[#1A1F2C] transition-colors flex items-center justify-between gap-3 group"
+                    className="w-full min-h-[64px] p-4 sm:px-5 text-left hover:bg-[#1A1F2C]/80 active:bg-[#1A1F2C] transition-colors flex flex-col justify-center gap-1.5 group"
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-display text-base font-semibold text-white truncate group-hover:text-[#10F596] transition-colors">
-                          {sub.name}
-                        </span>
-                      </div>
+                    {/* Line 1: Subscription name left and monthly cost right */}
+                    <div className="w-full flex items-baseline justify-between gap-3">
+                      <span className="font-display text-base font-semibold text-white truncate">
+                        {sub.name}
+                      </span>
+                      <span className="money-display text-base font-semibold text-[#10F596] shrink-0">
+                        {`${formatMoney(monthly, currency)}/mo`}
+                      </span>
+                    </div>
 
-                      {/* Unboxed clean metadata with typographic separators */}
-                      <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-[#94A3B8]">
-                        <span>{CATEGORY_LABELS[sub.category]}</span>
-                        <span aria-hidden="true">·</span>
+                    {/* Line 2: Relative renewal date + category left, billing cadence right */}
+                    <div className="w-full flex items-center justify-between gap-3 text-xs text-[#94A3B8]">
+                      <div className="flex items-center gap-1.5 truncate">
                         <span
                           className={
                             isWithinReminder
@@ -253,36 +233,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                               : 'text-[#94A3B8]'
                           }
                         >
-                          <CalendarClock className="w-3 h-3 inline mr-1 -mt-0.5" />
-                          {formatRenewalCountdown(sub.renewalDate)} (
-                          {formatDisplayDate(sub.renewalDate)})
+                          {formatRenewalCountdown(sub.renewalDate)}
                         </span>
                         <span aria-hidden="true">·</span>
-                        <span
-                          className={
-                            isWaste ? 'text-[#FFD06A]' : 'text-[#94A3B8]'
-                          }
-                        >
-                          {USAGE_LABELS[sub.usage]} use
-                        </span>
+                        <span>{CATEGORY_LABELS[sub.category]}</span>
                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="text-right">
-                        <div className="font-mono-num text-base font-semibold text-[#10F596]">
-                          {formatMoney(monthly, currency)}
-                          <span className="text-xs font-normal text-[#94A3B8]">
-                            /mo
-                          </span>
-                        </div>
-                        <div className="font-mono-num text-[11px] text-[#94A3B8]">
-                          {sub.cycle === 'annual'
-                            ? `${formatMoney(sub.cost, currency)}/yr billed`
-                            : `${formatMoney(yearly, currency)}/yr`}
-                        </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-[#64748B] group-hover:text-white transition-colors" />
+                      <span className="shrink-0 text-[#94A3B8]">
+                        {sub.cycle === 'annual' ? 'Annual' : 'Monthly'}
+                      </span>
                     </div>
                   </button>
                 );

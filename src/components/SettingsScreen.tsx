@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Check,
+  ChevronDown,
   Copy,
   Download,
   FileJson,
@@ -51,6 +52,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onNotify,
 }) => {
   const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const [demoToolsOpen, setDemoToolsOpen] = useState(false);
   const [exportPreview, setExportPreview] = useState<{
     format: 'CSV' | 'JSON';
     content: string;
@@ -140,17 +142,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             </p>
           </div>
           <div className="text-right">
-            <span className="font-mono-num text-lg font-bold text-[#10F596]">
-              {formatMoney(monthlyTotal, settings.currency)}/mo
+            <span className="money-display text-lg font-bold text-[#10F596]">
+              {`${formatMoney(monthlyTotal, settings.currency)}/mo`}
             </span>
             <p className="font-mono-num text-xs text-[#94A3B8]">
-              {activeCount} active · {formatMoney(yearlyTotal, settings.currency)}/yr
+              {activeCount} active ·{' '}
+              <span className="money-display text-[#10F596]">
+                {`${formatMoney(yearlyTotal, settings.currency)}/yr`}
+              </span>
             </p>
           </div>
         </div>
       </section>
 
-      {/* Setting 1: Currency Selector */}
+      {/* Setting 1: Currency Selector (Compact 3-column row with 48px tap targets) */}
       <section
         aria-label="Currency preference"
         className="bg-[#12151E] border border-[#1E2433] rounded-[20px] p-5 sm:p-6 space-y-4"
@@ -167,7 +172,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         <div
           role="group"
           aria-label="Select currency"
-          className="grid grid-cols-2 sm:grid-cols-3 gap-2.5"
+          className="grid grid-cols-3 gap-2"
         >
           {CURRENCIES.map((code) => {
             const cfg = CURRENCY_CONFIG[code];
@@ -180,14 +185,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   onUpdateSettings({ currency: code });
                   onNotify(`Currency updated to ${cfg.label}.`);
                 }}
-                className={`min-h-[50px] px-4 rounded-[16px] border text-sm font-medium flex items-center justify-between transition-colors whitespace-nowrap shrink-0 ${
+                className={`min-h-[48px] px-3 rounded-[14px] border text-sm font-medium flex items-center justify-between transition-colors whitespace-nowrap shrink-0 ${
                   active
-                    ? 'bg-[#1A1F2C] border-[#10F596] text-white'
+                    ? 'bg-[#1A1F2C] border-[#94A3B8] text-white'
                     : 'bg-[#090A0F] border-[#252B3B] text-[#94A3B8] hover:text-white hover:border-[#333B52]'
                 }`}
               >
                 <span>{code}</span>
-                <span className="font-mono-num text-xs text-[#10F596]">
+                <span className="font-mono-num text-xs text-[#94A3B8]">
                   {cfg.symbol}
                 </span>
               </button>
@@ -225,9 +230,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   onUpdateSettings({ reminderDays: item.value });
                   onNotify(`Reminder window set to ${item.label}.`);
                 }}
-                className={`min-h-[50px] px-4 rounded-[16px] border text-sm font-medium flex items-center justify-center transition-colors whitespace-nowrap shrink-0 ${
+                className={`min-h-[48px] px-4 rounded-[16px] border text-sm font-medium flex items-center justify-center transition-colors whitespace-nowrap shrink-0 ${
                   active
-                    ? 'bg-[#1A1F2C] border-[#10F596] text-white'
+                    ? 'bg-[#1A1F2C] border-[#94A3B8] text-white'
                     : 'bg-[#090A0F] border-[#252B3B] text-[#94A3B8] hover:text-white hover:border-[#333B52]'
                 }`}
               >
@@ -258,7 +263,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onClick={handleExportCsv}
             className="min-h-[52px] px-4 rounded-[16px] bg-[#1A1F2C] hover:bg-[#232A3B] border border-[#2D3548] text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap shrink-0"
           >
-            <FileSpreadsheet className="w-4 h-4 text-[#10F596]" />
+            <FileSpreadsheet className="w-4 h-4 text-[#94A3B8]" />
             <span>Export CSV</span>
             <Download className="w-3.5 h-3.5 text-[#94A3B8] ml-1" />
           </button>
@@ -268,7 +273,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             onClick={handleExportJson}
             className="min-h-[52px] px-4 rounded-[16px] bg-[#1A1F2C] hover:bg-[#232A3B] border border-[#2D3548] text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors whitespace-nowrap shrink-0"
           >
-            <FileJson className="w-4 h-4 text-[#10F596]" />
+            <FileJson className="w-4 h-4 text-[#94A3B8]" />
             <span>Export JSON</span>
             <Download className="w-3.5 h-3.5 text-[#94A3B8] ml-1" />
           </button>
@@ -277,7 +282,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {exportPreview && (
           <div className="mt-4 p-4 rounded-[16px] bg-[#090A0F] border border-[#252B3B] space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#10F596]">
+              <span className="text-xs font-medium text-white">
                 {exportPreview.format} Export Ready ({subscriptions.length}{' '}
                 records)
               </span>
@@ -288,7 +293,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   className="px-2.5 py-1 rounded-lg bg-[#1A1F2C] hover:bg-[#252C3F] text-xs text-white flex items-center gap-1 transition-colors whitespace-nowrap shrink-0"
                 >
                   {copied ? (
-                    <Check className="w-3.5 h-3.5 text-[#10F596]" />
+                    <Check className="w-3.5 h-3.5 text-white" />
                   ) : (
                     <Copy className="w-3.5 h-3.5 text-[#94A3B8]" />
                   )}
@@ -310,48 +315,63 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         )}
       </section>
 
-      {/* Preset & State Verification Tools */}
+      {/* Collapsed Accordion: Demo tools */}
       <section
-        aria-label="Sample datasets and loading state"
-        className="bg-[#12151E] border border-[#1E2433] rounded-[20px] p-5 sm:p-6 space-y-4"
+        aria-label="Demo tools"
+        className="bg-[#12151E] border border-[#1E2433] rounded-[20px] overflow-hidden"
       >
-        <div>
-          <h3 className="font-display text-base font-semibold text-white">
-            Ledger Presets &amp; State Controls
-          </h3>
-          <p className="text-xs text-[#94A3B8] mt-0.5">
-            Restore Stitch design sample data or preview the local loading skeleton
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={() => setDemoToolsOpen((prev) => !prev)}
+          aria-expanded={demoToolsOpen}
+          className="w-full min-h-[52px] px-5 py-3.5 text-left flex items-center justify-between text-sm font-medium text-[#94A3B8] hover:text-white transition-colors"
+        >
+          <span className="font-display font-semibold text-white">
+            Demo tools
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 text-[#94A3B8] transition-transform ${
+              demoToolsOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <button
-            type="button"
-            onClick={onRestoreDefaultSample}
-            className="min-h-[48px] px-3 rounded-[14px] bg-[#090A0F] hover:bg-[#1A1F2C] border border-[#252B3B] text-xs font-medium text-white flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-[#10F596]" />
-            <span>Baseline ($142.50/mo)</span>
-          </button>
+        {demoToolsOpen && (
+          <div className="px-5 pb-5 pt-2 border-t border-[#1E2433] space-y-3">
+            <p className="text-xs text-[#94A3B8]">
+              Restore Stitch design sample data or preview the local loading
+              skeleton
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <button
+                type="button"
+                onClick={onRestoreDefaultSample}
+                className="min-h-[48px] px-3 rounded-[14px] bg-[#090A0F] hover:bg-[#1A1F2C] border border-[#252B3B] text-xs font-medium text-white flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <span>Baseline ($142.50/mo)</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={onRestoreAuditSample}
-            className="min-h-[48px] px-3 rounded-[14px] bg-[#090A0F] hover:bg-[#1A1F2C] border border-[#252B3B] text-xs font-medium text-white flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-[#FFD06A]" />
-            <span>Adobe CC Audit Demo</span>
-          </button>
+              <button
+                type="button"
+                onClick={onRestoreAuditSample}
+                className="min-h-[48px] px-3 rounded-[14px] bg-[#090A0F] hover:bg-[#1A1F2C] border border-[#252B3B] text-xs font-medium text-white flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <span>Adobe CC Audit Demo</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={onTriggerLoadingDemo}
-            className="min-h-[48px] px-3 rounded-[14px] bg-[#090A0F] hover:bg-[#1A1F2C] border border-[#252B3B] text-xs font-medium text-[#94A3B8] hover:text-white flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reload Skeleton</span>
-          </button>
-        </div>
+              <button
+                type="button"
+                onClick={onTriggerLoadingDemo}
+                className="min-h-[48px] px-3 rounded-[14px] bg-[#090A0F] hover:bg-[#1A1F2C] border border-[#252B3B] text-xs font-medium text-[#94A3B8] hover:text-white flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Reload Skeleton</span>
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Setting 4: Clear-All with Confirm Dialog */}
@@ -389,8 +409,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             </p>
             <p className="text-xs text-[#94A3B8]">
               This resets your monthly total to{' '}
-              <span className="font-mono-num text-[#10F596]">
-                {formatMoney(0, settings.currency)}/mo
+              <span className="money-display text-[#10F596]">
+                {`${formatMoney(0, settings.currency)}/mo`}
               </span>{' '}
               and shows the first-run empty state.
             </p>

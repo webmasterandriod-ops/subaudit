@@ -20,8 +20,6 @@ interface AuditScreenProps {
   currency: CurrencyCode;
   onSelectSubscription: (sub: Subscription) => void;
   onQuickCancelSubscription: (id: string) => void;
-  onLoadAuditPreset: () => void;
-  onLoadDefaultPreset: () => void;
 }
 
 export const AuditScreen: React.FC<AuditScreenProps> = ({
@@ -29,8 +27,6 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
   currency,
   onSelectSubscription,
   onQuickCancelSubscription,
-  onLoadAuditPreset,
-  onLoadDefaultPreset,
 }) => {
   const [filterMode, setFilterMode] = useState<'waste' | 'all'>('waste');
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
@@ -53,15 +49,12 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
             <p className="text-xs font-medium text-[#94A3B8]">
               Recoverable Monthly Savings (Never &amp; Rarely Used)
             </p>
-            <div className="mt-2 flex items-baseline gap-1.5">
+            <div className="mt-2">
               <span
                 data-testid="audit-recoverable-monthly"
-                className="font-mono-num text-4xl sm:text-5xl font-bold tracking-tight text-[#10F596]"
+                className="money-display text-4xl sm:text-5xl font-bold text-[#10F596]"
               >
-                {formatMoney(recoverableMonthly, currency, true)}
-              </span>
-              <span className="font-mono-num text-base text-[#94A3B8]">
-                /mo
+                {`${formatMoney(recoverableMonthly, currency, true)}/mo`}
               </span>
             </div>
           </div>
@@ -70,39 +63,15 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
             <p className="text-xs text-[#94A3B8]">Annualized Recovery</p>
             <p
               data-testid="audit-recoverable-yearly"
-              className="font-mono-num text-xl font-bold text-[#10F596] mt-1"
+              className="money-display text-xl font-bold text-[#10F596] mt-1"
             >
-              {formatMoney(recoverableYearly, currency, true)}/yr
+              {`${formatMoney(recoverableYearly, currency, true)}/yr`}
             </p>
-          </div>
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-[#1E2433] flex flex-wrap items-center justify-between gap-3 text-xs text-[#94A3B8]">
-          <span>
-            Ranking rule: Never used → Rarely → Weekly → Daily (highest monthly
-            cost first)
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onLoadAuditPreset}
-              className="text-[#FFD06A] hover:underline whitespace-nowrap"
-            >
-              Load Adobe CC Audit Example
-            </button>
-            <span aria-hidden="true">·</span>
-            <button
-              type="button"
-              onClick={onLoadDefaultPreset}
-              className="text-[#94A3B8] hover:text-white hover:underline whitespace-nowrap"
-            >
-              Baseline ($142.50)
-            </button>
           </div>
         </div>
       </section>
 
-      {/* Interactive Filter Segmented Control */}
+      {/* Interactive Filter Segmented Control + Short Caption */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div
           role="group"
@@ -129,13 +98,13 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
                 : 'text-[#94A3B8] hover:text-white'
             }`}
           >
-            All Ranked by Usage ({allRanked.length})
+            All Ranked ({allRanked.length})
           </button>
         </div>
 
         <span className="text-xs text-[#94A3B8] flex items-center gap-1.5">
           <SlidersHorizontal className="w-3.5 h-3.5" />
-          Sorted by usage &amp; monthly cost
+          <span>Sorted by: Inactive &amp; Cost</span>
         </span>
       </div>
 
@@ -145,15 +114,15 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
           aria-label="Zero waste empty state"
           className="bg-[#12151E] border border-[#1E2433] rounded-[20px] p-8 text-center space-y-4"
         >
-          <div className="mx-auto w-12 h-12 rounded-2xl bg-[#1A1F2C] border border-[#262D40] flex items-center justify-center text-[#10F596]">
+          <div className="mx-auto w-12 h-12 rounded-2xl bg-[#1A1F2C] border border-[#262D40] flex items-center justify-center text-[#94A3B8]">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div className="space-y-1.5 max-w-md mx-auto">
             <h2 className="font-display text-lg font-bold text-white">
               All Clean — Zero Waste
             </h2>
-            <p className="font-mono-num text-base font-semibold text-[#10F596]">
-              {formatMoney(0, currency)}/mo waste
+            <p className="money-display text-base font-semibold text-[#10F596]">
+              {`${formatMoney(0, currency)}/mo waste`}
             </p>
             <p className="text-sm text-[#94A3B8] pt-1">
               Every active subscription in your ledger is rated Daily or Weekly
@@ -200,17 +169,17 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
                 key={sub.id}
                 className="bg-[#12151E] border border-[#1E2433] rounded-[20px] p-4 sm:p-5 transition-colors hover:border-[#2B3348]"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-4">
                   <button
                     type="button"
                     onClick={() => onSelectSubscription(sub)}
                     className="text-left flex-1 min-w-0 group"
                   >
-                    <div className="flex items-baseline gap-2.5">
-                      <span className="font-mono-num text-sm font-bold text-[#FFD06A] shrink-0">
+                    <div className="flex items-start gap-2.5">
+                      <span className="font-mono-num text-sm font-bold text-[#FFD06A] shrink-0 mt-0.5">
                         #{rankNum}
                       </span>
-                      <h3 className="font-display text-base sm:text-lg font-semibold text-white truncate group-hover:text-[#10F596] transition-colors">
+                      <h3 className="font-display text-base sm:text-lg font-semibold text-white line-clamp-2 break-words leading-snug">
                         {sub.name}
                       </h3>
                     </div>
@@ -233,21 +202,19 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
                       <span aria-hidden="true">·</span>
                       <span>
                         {sub.cycle === 'annual'
-                          ? `${formatMoney(sub.cost, currency)}/yr (${formatMoney(monthly, currency)}/mo equivalent)`
+                          ? `${formatMoney(sub.cost, currency)}/yr (${formatMoney(monthly, currency)}/mo eq.)`
                           : `${formatMoney(sub.cost, currency)}/mo`}
                       </span>
                     </div>
                   </button>
 
+                  {/* Saving amount stacked neatly on the right */}
                   <div className="text-right shrink-0">
-                    <div className="font-mono-num text-lg font-bold text-[#10F596]">
-                      {formatMoney(monthly, currency, true)}
-                      <span className="text-xs font-normal text-[#94A3B8]">
-                        /mo
-                      </span>
+                    <div className="money-display text-lg font-bold text-[#10F596]">
+                      {`${formatMoney(monthly, currency, true)}/mo`}
                     </div>
-                    <div className="font-mono-num text-xs text-[#10F596]/80">
-                      Save {formatMoney(yearly, currency, true)}/yr
+                    <div className="money-display text-xs text-[#10F596]/85 mt-0.5">
+                      {`Save ${formatMoney(yearly, currency, true)}/yr`}
                     </div>
                   </div>
                 </div>
@@ -255,9 +222,16 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
                 {/* Action bar for quick cancel or inspect */}
                 <div className="mt-4 pt-3 border-t border-[#1E2433] flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-[#94A3B8]">
-                    {isHighWaste
-                      ? `Cancelling recovers ${formatMoney(monthly, currency, true)}/mo immediately`
-                      : `Active ${USAGE_LABELS[sub.usage].toLowerCase()} subscription`}
+                    {isHighWaste ? (
+                      <>
+                        Cancelling recovers{' '}
+                        <span className="money-display text-[#10F596]">
+                          {`${formatMoney(monthly, currency, true)}/mo`}
+                        </span>
+                      </>
+                    ) : (
+                      `Active ${USAGE_LABELS[sub.usage].toLowerCase()} subscription`
+                    )}
                   </span>
 
                   {!isConfirming ? (
@@ -294,9 +268,9 @@ export const AuditScreen: React.FC<AuditScreenProps> = ({
                           onQuickCancelSubscription(sub.id);
                           setConfirmCancelId(null);
                         }}
-                        className="min-h-[44px] px-3.5 rounded-[12px] bg-[#10F596] text-[#090A0F] text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+                        className="min-h-[44px] px-3.5 rounded-[12px] bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
                       >
-                        Confirm Cancel ({formatMoney(monthly, currency, true)}/mo)
+                        {`Confirm Cancel (${formatMoney(monthly, currency, true)}/mo)`}
                       </button>
                     </div>
                   )}

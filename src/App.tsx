@@ -228,6 +228,7 @@ export default function App() {
     getAuditMetrics(subscriptions);
   const { next7Days, next7DaysTotal } = getRenewalGroups(subscriptions);
   const categoryStats = getCategoryBreakdown(subscriptions);
+  const isEmpty = subscriptions.length === 0;
 
   return (
     <div className="min-h-screen bg-[#090A0F] text-[#F8FAFC] flex flex-col pb-20 lg:pb-12">
@@ -260,7 +261,7 @@ export default function App() {
                   onClick={() => setActiveTab(item.id)}
                   className={`py-1 transition-colors whitespace-nowrap shrink-0 border-b-2 ${
                     isActive
-                      ? 'text-white border-[#10F596]'
+                      ? 'text-white border-white'
                       : 'text-[#94A3B8] border-transparent hover:text-white'
                   }`}
                 >
@@ -270,16 +271,18 @@ export default function App() {
             })}
           </nav>
 
-          {/* Zone 3: 1 primary action */}
+          {/* Zone 3: 1 primary action (hidden when ledger is empty so empty-state card is the only add entry point) */}
           <div className="flex items-center shrink-0">
-            <button
-              type="button"
-              onClick={handleOpenAdd}
-              className="min-h-[40px] px-3.5 py-1.5 rounded-xl bg-[#10F596] text-[#090A0F] font-display text-xs sm:text-sm font-semibold flex items-center gap-1.5 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap shrink-0"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Record Subscription</span>
-            </button>
+            {!isEmpty && (
+              <button
+                type="button"
+                onClick={handleOpenAdd}
+                className="min-h-[40px] px-3.5 py-1.5 rounded-xl bg-[#1A1F2C] hover:bg-[#242B3D] border border-[#2B3348] text-white font-display text-xs sm:text-sm font-semibold flex items-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <Plus className="w-4 h-4 stroke-[2.2]" />
+                <span>Record Subscription</span>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -294,10 +297,10 @@ export default function App() {
           <div
             role="status"
             aria-live="polite"
-            className="mb-5 p-3.5 sm:px-4 rounded-[16px] bg-[#12151E] border border-[#10F596]/50 flex items-center justify-between gap-3"
+            className="mb-5 p-3.5 sm:px-4 rounded-[16px] bg-[#12151E] border border-[#2B3348] flex items-center justify-between gap-3"
           >
             <div className="flex items-center gap-2.5 text-sm text-white">
-              <CheckCircle2 className="w-4 h-4 text-[#10F596] shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#94A3B8] shrink-0" />
               <span>{successMessage}</span>
             </div>
             <button
@@ -318,7 +321,7 @@ export default function App() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="font-display text-xl sm:text-2xl font-bold text-white">
-                  {activeTab === 'home' && 'Tactile Ledger'}
+                  {activeTab === 'home' && 'Recurring spend'}
                   {activeTab === 'audit' && 'Cancel Candidates'}
                   {activeTab === 'renewals' && 'Upcoming Renewals'}
                   {activeTab === 'categories' && 'Spend by Category'}
@@ -330,7 +333,9 @@ export default function App() {
                   {activeTab === 'audit' &&
                     'Ranked by cost against usage rating — rarely and never-used on top'}
                   {activeTab === 'renewals' &&
-                    'Charges scheduled in the next 7 days and next 30 days'}
+                    `Reminder window set to ${settings.reminderDays} ${
+                      settings.reminderDays === 1 ? 'day' : 'days'
+                    } before charge`}
                   {activeTab === 'categories' &&
                     'Monthly totals and share breakdown across all 5 categories'}
                   {activeTab === 'settings' &&
@@ -361,8 +366,6 @@ export default function App() {
                     currency={settings.currency}
                     onSelectSubscription={handleOpenEdit}
                     onQuickCancelSubscription={handleDeleteSubscription}
-                    onLoadAuditPreset={handleRestoreAuditSample}
-                    onLoadDefaultPreset={handleRestoreDefaultSample}
                   />
                 )}
 
@@ -422,25 +425,25 @@ export default function App() {
                 <div className="pt-3 border-t border-[#1E2433] space-y-2.5 text-sm">
                   <div className="flex items-baseline justify-between">
                     <span className="text-[#94A3B8]">Monthly Total</span>
-                    <span className="font-mono-num font-bold text-[#10F596]">
-                      {formatMoney(monthlyTotal, settings.currency)}/mo
+                    <span className="money-display font-bold text-[#10F596]">
+                      {`${formatMoney(monthlyTotal, settings.currency)}/mo`}
                     </span>
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="text-[#94A3B8]">Yearly Total</span>
-                    <span className="font-mono-num font-semibold text-[#10F596]">
-                      {formatMoney(yearlyTotal, settings.currency)}/yr
+                    <span className="money-display font-semibold text-[#10F596]">
+                      {`${formatMoney(yearlyTotal, settings.currency)}/yr`}
                     </span>
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="text-[#94A3B8]">Recoverable Waste</span>
-                    <span className="font-mono-num font-semibold text-[#10F596]">
-                      {formatMoney(recoverableMonthly, settings.currency, true)}/mo
+                    <span className="money-display font-semibold text-[#10F596]">
+                      {`${formatMoney(recoverableMonthly, settings.currency, true)}/mo`}
                     </span>
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="text-[#94A3B8]">Due Next 7 Days</span>
-                    <span className="font-mono-num font-semibold text-[#10F596]">
+                    <span className="money-display font-semibold text-[#10F596]">
                       {formatMoney(next7DaysTotal, settings.currency)}
                     </span>
                   </div>
@@ -461,29 +464,30 @@ export default function App() {
                       className="w-full p-3 rounded-[14px] bg-[#1A1F2C] hover:bg-[#232A3B] text-left transition-colors flex items-center justify-between gap-2"
                     >
                       <div className="min-w-0">
-                        <p className="font-display text-sm font-semibold text-white truncate">
+                        <p className="font-display text-sm font-semibold text-white line-clamp-2">
                           {wasteCandidates[0].name}
                         </p>
                         <p className="text-xs text-[#94A3B8]">
                           Save{' '}
-                          {formatMoney(
-                            recoverableYearly,
-                            settings.currency,
-                            true
-                          )}
-                          /yr total waste
+                          <span className="money-display text-[#10F596]">
+                            {`${formatMoney(
+                              recoverableYearly,
+                              settings.currency,
+                              true
+                            )}/yr`}
+                          </span>{' '}
+                          total waste
                         </p>
                       </div>
-                      <span className="font-mono-num text-sm font-bold text-[#10F596] shrink-0">
-                        {formatMoney(
+                      <span className="money-display text-sm font-bold text-[#10F596] shrink-0">
+                        {`${formatMoney(
                           getMonthlyEquivalent(
                             wasteCandidates[0].cost,
                             wasteCandidates[0].cycle
                           ),
                           settings.currency,
                           true
-                        )}
-                        /mo
+                        )}/mo`}
                       </span>
                     </button>
                   </div>
@@ -497,7 +501,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setActiveTab('categories')}
-                        className="text-[#10F596] hover:underline inline-flex items-center gap-0.5"
+                        className="text-white hover:underline inline-flex items-center gap-0.5"
                       >
                         <span>View all</span>
                         <ArrowUpRight className="w-3 h-3" />
@@ -513,7 +517,7 @@ export default function App() {
                           >
                             <span className="text-[#F8FAFC]">{cat.label}</span>
                             <span className="font-mono-num text-[#94A3B8]">
-                              <span className="text-[#10F596] font-medium">
+                              <span className="money-display text-[#10F596] font-medium">
                                 {formatMoney(cat.monthlyTotal, settings.currency)}
                               </span>{' '}
                               ({cat.sharePercent.toFixed(1)}%)
@@ -532,7 +536,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => setActiveTab('renewals')}
-                        className="text-[#10F596] hover:underline inline-flex items-center gap-0.5"
+                        className="text-white hover:underline inline-flex items-center gap-0.5"
                       >
                         <span>Schedule</span>
                         <ArrowUpRight className="w-3 h-3" />
@@ -544,7 +548,7 @@ export default function App() {
                           key={item.id}
                           type="button"
                           onClick={() => handleOpenEdit(item)}
-                          className="w-full text-left flex items-center justify-between text-xs py-1 hover:text-[#10F596] transition-colors"
+                          className="w-full text-left flex items-center justify-between text-xs py-1 hover:text-white transition-colors"
                         >
                           <span className="truncate pr-2 text-white">
                             {item.name}{' '}
@@ -552,7 +556,7 @@ export default function App() {
                               ({formatRenewalCountdown(item.renewalDate)})
                             </span>
                           </span>
-                          <span className="font-mono-num text-[#10F596] shrink-0">
+                          <span className="money-display text-[#10F596] shrink-0">
                             {formatMoney(
                               getMonthlyEquivalent(item.cost, item.cycle),
                               settings.currency
@@ -586,7 +590,7 @@ export default function App() {
                 onClick={() => setActiveTab(item.id)}
                 className={`min-h-[48px] flex flex-col items-center justify-center rounded-xl transition-colors whitespace-nowrap shrink-0 ${
                   isActive
-                    ? 'text-[#10F596]'
+                    ? 'text-white bg-[#1A1F2C]/80'
                     : 'text-[#94A3B8] hover:text-white'
                 }`}
               >
